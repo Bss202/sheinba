@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تتبع طلبك</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container tracking-page">
+        <header>
+            <h1>🔍 تتبع حالة طلبك</h1>
+            <p>أدخل رقم التتبع لرؤية تفاصيل طلبك</p>
+        </header>
+
+        <section class="search-section">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="أدخل رقم التتبع (مثال: 123456)...">
+                <button id="searchBtn" class="btn-primary">بحث</button>
+            </div>
+        </section>
+
+        <section class="results-section">
+            <div id="searchResults" class="cards-grid">
+                <!-- Results will appear here -->
+            </div>
+            <div id="searchMessage" class="message-state">
+                أدخل رقم التتبع أعلاه للبدء في البحث.
+            </div>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
