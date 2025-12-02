@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Check which page we are on
     const isAdminPage = document.getElementById('addOrderForm');
     const isTrackingPage = document.getElementById('searchInput');
 
@@ -14,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // --- Admin Authentication ---
 
-const ADMIN_PASSWORD = '16720'; // Change this to your desired password
+const ADMIN_PASSWORD = '16720';
 
 function initAdminAuth() {
     const loginOverlay = document.getElementById('loginOverlay');
@@ -23,12 +22,10 @@ function initAdminAuth() {
     const loginError = document.getElementById('loginError');
     const logoutBtn = document.getElementById('logoutBtn');
 
-    // Check if already logged in
     if (sessionStorage.getItem('adminLoggedIn') === 'true') {
         showDashboard();
     }
 
-    // Handle login
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const password = document.getElementById('password').value;
@@ -43,7 +40,6 @@ function initAdminAuth() {
         }
     });
 
-    // Handle logout
     logoutBtn.addEventListener('click', () => {
         sessionStorage.removeItem('adminLoggedIn');
         hideDashboard();
@@ -79,7 +75,7 @@ function generateTrackingCode() {
 function addOrder(order) {
     const orders = getOrders();
     order.trackingCode = generateTrackingCode();
-    order.status = 'ordered'; // Default status
+    order.status = 'ordered';
     orders.unshift(order);
     saveOrders(orders);
     return order.trackingCode;
@@ -103,7 +99,7 @@ function deleteOrder(id) {
 
 const statusLabels = {
     'ordered': 'تم الطلب',
-    'preparing': 'قيد التجهيز  ',
+    'preparing': 'قيد التجهيز',
     'shipped': 'تم الشحن',
     'out-for-delivery': 'قيد التوصيل',
     'delivered': 'تم التوصيل'
@@ -115,9 +111,97 @@ function initAdminPage() {
     const form = document.getElementById('addOrderForm');
     const tableBody = document.getElementById('ordersTableBody');
     const noOrdersMsg = document.getElementById('noOrdersMessage');
+    const addProductBtn = document.getElementById('addProductBtn');
+    const productsContainer = document.getElementById('productsContainer');
+    const totalPriceEl = document.getElementById('totalPrice');
 
-    // Set today's date as default
+    let productCount = 0;
+
     document.getElementById('orderDate').valueAsDate = new Date();
+
+    // Add first product automatically
+    addProductField();
+
+    // Add Product Button
+    addProductBtn.addEventListener('click', () => {
+        addProductField();
+    });
+
+    function addProductField() {
+        productCount++;
+        const productItem = document.createElement('div');
+        productItem.className = 'product-item';
+        productItem.dataset.id = productCount;
+
+        productItem.innerHTML = `
+            <div class="product-item-header">
+                <span class="product-number">المنتج ${productCount}</span>
+                <button type="button" class="btn-remove-product" onclick="removeProduct(this)">حذف</button>
+            </div>
+            <div class="product-row">
+                <div class="form-group">
+                    <label>اسم المنتج</label>
+                    <input type="text" class="product-name" placeholder="مثال: ساعة ذكية" required>
+                </div>
+                <div class="form-group">
+                    <label>رابط المنتج (اختياري)</label>
+                    <input type="url" class="product-link" placeholder="https://...">
+                </div>
+                <div class="form-group">
+                    <label>السعر</label>
+                    <input type="number" class="product-price" placeholder="0.00" required>
+                </div>
+            </div>
+        `;
+
+        productsContainer.appendChild(productItem);
+
+        // Update total when price changes
+        const priceInput = productItem.querySelector('.product-price');
+        priceInput.addEventListener('input', updateTotalPrice);
+    }
+
+    window.removeProduct = function (btn) {
+        const productItem = btn.closest('.product-item');
+        if (productsContainer.children.length > 1) {
+            productItem.remove();
+            updateTotalPrice();
+            renumberProducts();
+        } else {
+            alert('يجب أن يحتوي الطلب على منتج واحد على الأقل');
+        }
+    };
+
+    function renumberProducts() {
+        const products = productsContainer.querySelectorAll('.product-item');
+        products.forEach((product, index) => {
+            product.querySelector('.product-number').textContent = `المنتج ${index + 1}`;
+        });
+    }
+
+    function updateTotalPrice() {
+        const prices = Array.from(document.querySelectorAll('.product-price'))
+            .map(input => parseFloat(input.value) || 0);
+        const total = prices.reduce((sum, price) => sum + price, 0);
+        totalPriceEl.textContent = total.toFixed(2);
+    }
+
+    function getProductsFromForm() {
+        const productItems = productsContainer.querySelectorAll('.product-item');
+        const products = [];
+
+        productItems.forEach(item => {
+            const name = item.querySelector('.product-name').value.trim();
+            const link = item.querySelector('.product-link').value.trim();
+            const price = parseFloat(item.querySelector('.product-price').value) || 0;
+
+            if (name && price > 0) {
+                products.push({ name, link, price });
+            }
+        });
+
+        return products;
+    }
 
     // Initial render
     renderOrdersTable();
@@ -125,18 +209,29 @@ function initAdminPage() {
     form.addEventListener('submit', (e) => {
         e.preventDefault();
 
+        const products = getProductsFromForm();
+        if (products.length === 0) {
+            alert('الرجاء إضافة منتج واحد على الأقل');
+            return;
+        }
+
+        const totalPrice = products.reduce((sum, p) => sum + p.price, 0);
+
         const newOrder = {
             id: Date.now().toString(),
             customerName: document.getElementById('customerName').value.trim(),
-            productName: document.getElementById('productName').value.trim(),
-            productLink: document.getElementById('productLink').value.trim(),
-            price: document.getElementById('price').value,
+            products: products,
+            totalPrice: totalPrice,
             date: document.getElementById('orderDate').value
         };
 
         addOrder(newOrder);
         form.reset();
-        document.getElementById('orderDate').valueAsDate = new Date(); // Reset date to today
+        productsContainer.innerHTML = '';
+        productCount = 0;
+        addProductField();
+        document.getElementById('orderDate').valueAsDate = new Date();
+        totalPriceEl.textContent = '0.00';
         renderOrdersTable();
         alert('تم إضافة الطلب بنجاح!');
     });
@@ -157,7 +252,7 @@ function initAdminPage() {
             const id = e.target.dataset.id;
             const newStatus = e.target.value;
             updateStatus(id, newStatus);
-            renderOrdersTable(); // Re-render to update badge color
+            renderOrdersTable();
         }
     });
 
@@ -172,10 +267,22 @@ function initAdminPage() {
             orders.forEach(order => {
                 const row = document.createElement('tr');
 
-                let productDisplay = order.productName;
-                if (order.productLink) {
-                    productDisplay = `<a href="${order.productLink}" target="_blank" class="product-link">${order.productName}</a>`;
+                // Products display
+                let productsDisplay = '';
+                if (order.products && order.products.length > 0) {
+                    productsDisplay = order.products.map(p => {
+                        if (p.link) {
+                            return `<span class="product-badge"><a href="${p.link}" target="_blank" class="product-link">${p.name}</a></span>`;
+                        }
+                        return `<span class="product-badge">${p.name}</span>`;
+                    }).join('');
+                } else {
+                    // Backward compatibility for old orders
+                    productsDisplay = order.productName || '-';
                 }
+
+                // Total price - handle old and new format
+                const totalPrice = order.totalPrice || order.price || 0;
 
                 // Status Dropdown
                 const statusOptions = Object.entries(statusLabels).map(([value, label]) =>
@@ -185,8 +292,8 @@ function initAdminPage() {
                 row.innerHTML = `
                     <td><span class="status-badge status-${order.status}">${order.trackingCode || '-'}</span></td>
                     <td>${order.customerName}</td>
-                    <td>${productDisplay}</td>
-                    <td>${order.price}</td>
+                    <td>${productsDisplay}</td>
+                    <td>${totalPrice}</td>
                     <td>${order.date}</td>
                     <td>
                         <select class="status-select" data-id="${order.id}">
@@ -225,7 +332,6 @@ function initTrackingPage() {
         }
 
         const orders = getOrders();
-        // Search by tracking code
         const results = orders.filter(order =>
             order.trackingCode === query
         );
@@ -245,29 +351,51 @@ function initTrackingPage() {
                 const card = document.createElement('div');
                 card.className = 'order-card';
 
-                let productDisplay = order.productName;
-                if (order.productLink) {
-                    productDisplay = `<a href="${order.productLink}" target="_blank" class="product-link">${order.productName}</a>`;
+                // Products display
+                let productsDisplay = '';
+                if (order.products && order.products.length > 0) {
+                    productsDisplay = order.products.map(p => {
+                        if (p.link) {
+                            return `
+                                <div class="order-detail">
+                                    <span>${p.name}:</span>
+                                    <strong><a href="${p.link}" target="_blank" class="product-link">رابط المنتج</a></strong>
+                                </div>
+                            `;
+                        }
+                        return `
+                            <div class="order-detail">
+                                <span>${p.name}:</span>
+                                <strong>${p.price}</strong>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    // Backward compatibility
+                    productsDisplay = `
+                        <div class="order-detail">
+                            <span>المنتج:</span>
+                            <strong>${order.productName || '-'}</strong>
+                        </div>
+                    `;
                 }
 
                 const statusLabel = statusLabels[order.status] || order.status;
+                const totalPrice = order.totalPrice || order.price || 0;
 
                 card.innerHTML = `
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-                        <h3>${productDisplay}</h3>
+                        <h3>الطلب #${order.trackingCode}</h3>
                         <span class="status-badge status-${order.status}">${statusLabel}</span>
-                    </div>
-                    <div class="order-detail">
-                        <span>رقم التتبع:</span>
-                        <strong>${order.trackingCode}</strong>
                     </div>
                     <div class="order-detail">
                         <span>العميل:</span>
                         <strong>${order.customerName}</strong>
                     </div>
+                    ${productsDisplay}
                     <div class="order-detail">
-                        <span>السعر:</span>
-                        <strong>${order.price}</strong>
+                        <span>السعر الكلي:</span>
+                        <strong>${totalPrice}</strong>
                     </div>
                     <div class="order-detail">
                         <span>التاريخ:</span>

@@ -203,16 +203,6 @@ th {
     padding: 2rem;
 }
 
-@media (max-width: 640px) {
-    body {
-        padding: 1rem;
-    }
-
-    section {
-        padding: 1.5rem;
-    }
-}
-
 /* Status Badges */
 .status-badge {
     padding: 0.25rem 0.75rem;
@@ -313,4 +303,128 @@ th {
 
 .btn-logout:hover {
     background-color: #dc2626;
+}
+
+/* Products Section */
+.products-section {
+    margin-bottom: 1.5rem;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.section-header h3 {
+    font-size: 1.1rem;
+    color: var(--text-color);
+    margin: 0;
+}
+
+.btn-add-product {
+    background-color: #10b981;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-family: inherit;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+
+.btn-add-product:hover {
+    background-color: #059669;
+}
+
+.product-item {
+    background-color: var(--background-color);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.product-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.product-number {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.btn-remove-product {
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-family: inherit;
+    transition: background-color 0.2s;
+}
+
+.btn-remove-product:hover {
+    background-color: #dc2626;
+}
+
+.product-row {
+    display: grid;
+    grid-template-columns: 2fr 2fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.total-section {
+    background-color: var(--background-color);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.total-display {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.25rem;
+}
+
+.total-display strong {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+}
+
+.products-list {
+    margin-top: 0.5rem;
+}
+
+.product-badge {
+    display: inline-block;
+    background-color: var(--background-color);
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.375rem;
+    margin: 0.25rem;
+    font-size: 0.875rem;
+}
+
+@media (max-width: 640px) {
+    body {
+        padding: 1rem;
+    }
+
+    section {
+        padding: 1.5rem;
+    }
+
+    .product-row {
+        grid-template-columns: 1fr;
+    }
 }

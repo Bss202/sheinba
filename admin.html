@@ -47,23 +47,26 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="productName">اسم المنتج</label>
-                    <input type="text" id="productName" placeholder="مثال: ساعة ذكية" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="productLink">رابط المنتج (اختياري)</label>
-                    <input type="url" id="productLink" placeholder="https://example.com/product">
-                </div>
-
-                <div class="form-group">
-                    <label for="price">السعر</label>
-                    <input type="number" id="price" placeholder="0.00" required>
-                </div>
-
-                <div class="form-group">
                     <label for="orderDate">التاريخ</label>
                     <input type="date" id="orderDate" required>
+                </div>
+
+                <div class="products-section">
+                    <div class="section-header">
+                        <h3>المنتجات</h3>
+                        <button type="button" id="addProductBtn" class="btn-add-product">+ إضافة منتج</button>
+                    </div>
+
+                    <div id="productsContainer">
+                        <!-- Products will be added here dynamically -->
+                    </div>
+                </div>
+
+                <div class="total-section">
+                    <div class="total-display">
+                        <span>المجموع الكلي:</span>
+                        <strong id="totalPrice">0.00</strong>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn-primary">إضافة الطلب</button>
@@ -78,8 +81,8 @@
                         <tr>
                             <th>كود التتبع</th>
                             <th>العميل</th>
-                            <th>المنتج</th>
-                            <th>السعر</th>
+                            <th>المنتجات</th>
+                            <th>السعر الكلي</th>
                             <th>التاريخ</th>
                             <th>الحالة</th>
                             <th>إجراءات</th>
